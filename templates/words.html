@@ -57,6 +57,8 @@
     }
 
     // Fetch words data when the page loads
-    fetchWords();
+    window.onload = function(){
+        fetchWords();
+    }
 </script>
 {% endblock %}
