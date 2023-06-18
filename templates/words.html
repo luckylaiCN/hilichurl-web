@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h2>单词</h2>
+    </div>
+</div>
+
+<div class="row mt-4" id="wordContainer">
+    <!-- Word cards will be dynamically added here -->
+</div>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+<script>
+    // Function to fetch words data and render cards
+    function fetchWords() {
+        function successCallback(data) {
+            // Clear previous cards
+            const wordContainer = document.getElementById('wordContainer');
+            wordContainer.innerHTML = '';
+
+            // Iterate over each word and create a card
+            data.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3 col-md-2';
+
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+
+                const wordTitle = document.createElement('h5');
+                wordTitle.className = 'card-title';
+                wordTitle.textContent = word.word;
+
+                const wordToken = document.createElement('p');
+                wordToken.className = 'card-text small';
+                wordToken.textContent = `Token: ${word.token}`;
+
+                cardBody.appendChild(wordTitle);
+                cardBody.appendChild(wordToken);
+
+                card.appendChild(cardBody);
+
+                wordContainer.appendChild(card);
+            });
+        }
+
+        function errorCallback(error) {
+            console.error('Error fetching words:', error);
+        }
+
+        // Anonymous login to get access token
+        anonymousLogin(() => {
+            const requestData = {};
+            sendApiRequestWord(requestData, successCallback, errorCallback);
+        });
+    }
+
+    // Fetch words data when the page loads
+    fetchWords();
+</script>
+{% endblock %}

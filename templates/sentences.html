@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>句子</h1>
+    <div class="row">
+        <div id="sentence-container" class="col"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            var wordMap = {};
+
+            function renderSentences(sentences) {
+
+                sentences.forEach(function (sentence) {
+                    var sentenceWords = sentence.sentence;
+                    var sentenceToken = sentence.token
+                    var sentenceCard = `
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">${sentenceWords.join(' ')}</h5>
+                                <p class="card-text">Token: ${sentenceToken}</p>
+                            </div>
+                        </div>
+                    `;
+                    $('#sentence-container').append(sentenceCard);
+                });
+            }
+
+            anonymousLogin(function (accessToken) {
+                sendApiRequestWord({}, function (wordsData) {
+                    wordsData.forEach(function (word) {
+                        wordMap[word.token] = word.word;
+                    });
+                    renderSentencesWithWords(wordMap);
+                }, function (error) {
+                    console.log('Error:', error);
+                });
+            });
+
+            function renderSentencesWithWords(wordMap) {
+                sendAPIRequestSentence({}, function (sentenceData) {
+                    var sentences = [];
+                    sentenceData.forEach(function (sentence) {
+                        var sentenceWords = sentence.sentence.map(function (token) {
+                            return wordMap[token];
+                        });
+                        sentences.push({ sentence: sentenceWords, token: sentence.token });
+                    });
+                    renderSentences(sentences);
+                }, function (error) {
+                    console.log('Error:', error);
+                });
+            }
+        });
+    </script>
+{% endblock %}
